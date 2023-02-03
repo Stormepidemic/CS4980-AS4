@@ -1,0 +1,44 @@
+class max
+{
+   public static void main(String[] a)
+   {
+      System.out.println(new MaxFinder().exec());
+   }
+}
+
+class MaxFinder
+{
+   public boolean init(int[] nums)
+   {
+      int a;
+      a = 0;
+      while ( a < 10 )
+      {
+         if ( a < 2 )
+            nums[a] = a * a;
+         else
+            nums[a] = (0 - a) * a;
+         a = a + 1;
+      }
+      return true;
+   }
+
+   public int exec()
+   {
+      int[] nums;
+      int m;
+      int i;
+      boolean junk;
+      nums = new int[10];
+      junk = this.init(nums);
+      m = 0;
+      i = 1;
+      while ( i < 10 )
+      {
+         if ( nums[m] < nums[i] )
+            m = i;
+         i = i + 1;
+      }
+      return nums[m];
+   }
+}

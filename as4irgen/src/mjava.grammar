@@ -1,0 +1,148 @@
+//
+// mjava.grammar, phase 4
+// To build:
+//      sablecc mjava.grammar
+//      javac TypeCheck.java
+//
+
+Helpers
+   digit = ['0'..'9'];
+   let   = ['a'..'z'] | ['A'..'Z'];
+   space = ' ' | 9;
+   newline = 10 | 11 | 12;
+   not_star = [0..41] | [43..127];
+   not_slash = [0..46] | [48..127];
+   not_slashstar = [0..41] | [43..46] | [48..127];
+   not_newline = [0..9] | [11..127];
+
+Tokens
+
+   boolean = 'boolean';
+   clas = 'class';
+   else = 'else';
+   false = 'false';
+   if = 'if';
+   int = 'int';
+   main = 'main';
+   new = 'new';
+   println = 'System.out.println';
+   public = 'public';
+   return = 'return';
+   static = 'static';
+   string = 'String';
+   this = 'this';
+   true = 'true';
+   void = 'void';
+   while = 'while';
+
+   lbracket = '[';
+   rbracket = ']';
+   semi = ';';
+   lparen = '(';
+   rparen = ')';
+   lbrace = '{';
+   rbrace = '}';
+   equal = '=';
+   dot = '.';
+   bang = '!';
+   comma = ',';
+   plus = '+';
+   and = '&&';
+   less = '<';
+   minus = '-';
+   star = '*';
+
+   id = let('_' | let | digit)*;
+   number = digit+;
+   whitespace = (space | newline)*;
+   line_comment = '//' not_newline* newline ;
+   slashstar_comment = '/*' not_star* '*'+ (not_slashstar not_star* '*'+)* '/';
+
+Ignored Tokens
+   whitespace,
+   line_comment,
+   slashstar_comment;
+
+Productions
+
+   program        = main_class class_decl*
+                  ;
+   main_class     = clas id lbrace main_def rbrace
+                  ;
+   main_def       = public static void main
+                    lparen string lbracket rbracket id rparen
+                    lbrace statement rbrace
+                  ;
+   class_decl     = {baseclass} clas id lbrace class_var_decl* method_decl*
+                    rbrace
+                  ;
+   class_var_decl = type id semi
+                  ;
+   local_var_decl = type id semi
+                  ;
+   method_decl    = public type id lparen formal_list rparen method_body
+                  ;
+   method_body    = lbrace local_var_decl* statement* return exp semi rbrace
+                  ;
+   formal_list    = {empty}
+                  | {nonempty} type id formal_rest
+                  ;
+   formal_rest    = {empty}
+                  | {nonempty} comma type id formal_rest
+                  ;
+   type           = {array} int lbracket rbracket
+                  | {bool}  boolean
+                  | {int}   int
+                  | {class} id
+                  ;
+   statement      = {ifone} if lparen exp rparen statement
+                  | {if} if lparen exp rparen [truepart]:stmt_all_paired
+                    else [falsepart]:statement
+                  | {while} while lparen exp rparen statement
+                  | {simple} simple_stmt
+                  ;
+   simple_stmt    = {print} println lparen exp rparen semi
+                  | {assign} id equal exp semi
+                  | {array}  id lbracket [index]:exp rbracket equal exp semi
+                  | {nested} lbrace statement* rbrace
+                  ;
+   stmt_all_paired= {sans_trailer} simple_stmt
+                  | {while} while lparen exp rparen stmt_all_paired
+                  | {if} if lparen exp rparen [truepart]:stmt_all_paired
+                         else [falsepart]:stmt_all_paired
+                  ;
+   exp            = and_exp
+                  ;
+   and_exp        = {simple} comparison
+                  | {and} [left]:and_exp and [right]:comparison
+                  ;
+   comparison     = {simple} arith_exp
+                  | {compare} [left]:arith_exp less [right]:arith_exp
+                  ;
+   arith_exp      = {simple} term
+                  | {add} [left]:arith_exp plus [right]:term
+                  | {subt} [left]:arith_exp minus [right]:term
+                  ;
+   term           = {simple} bool_exp
+                  | {times} [left]:term star [right]:bool_exp
+                  ;
+   bool_exp       = {simple} factor
+                  | {not} bang bool_exp
+                  ;
+   factor         = {array} factor lbracket [index]:exp rbracket
+                  | {call} factor dot id lparen exp_list rparen
+                  | {num}  number
+                  | {true} true
+                  | {false} false
+                  | {id} id
+                  | {this} this
+                  | {newarray} new int lbracket exp rbracket
+                  | {newobj}   new id lparen rparen
+                  | {nested}   lparen exp rparen
+                  ;
+   exp_list       = {empty}
+                  | {exps} exp exp_rest
+                  ;
+   exp_rest       = {empty}
+                  | {exps} comma exp exp_rest
+                  ;

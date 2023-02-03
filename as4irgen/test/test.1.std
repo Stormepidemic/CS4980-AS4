@@ -1,0 +1,207 @@
+
+----------------------------------------
+Symbols:
+
+class Polynomial
+{
+int value(int x /*offset 0*/;)
+[params and locals:
+int term1 /*offset 0*/;
+int term2 /*offset 1*/;
+int term3 /*offset 2*/;
+int term4 /*offset 3*/;
+int total /*offset 4*/;
+int x /*offset 0*/;
+]
+}
+class simp
+{
+static void main()
+[params and locals:
+]
+}
+
+----------------------------------------
+-----------
+SEQ(
+ 	.text
+	.align 2
+.globl value
+	.type	value,@function
+value:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl [#LOCALS], %esp
+,
+ SEQ(
+  SEQ(
+   SEQ(
+    SEQ(
+     SEQ(
+      SEQ(
+       SEQ(
+        EXPS(
+         CONST 0),
+        EXPS(
+         CONST 0)),
+       EXPS(
+        ESEQ(
+         SEQ(
+          		;; term1 = 9 * x * x * x ,
+          MOVE(
+           MEM(
+            BINOP(PLUS,
+             NAME %ebp,
+             CONST -4)),
+           BINOP(MUL,
+            BINOP(MUL,
+             BINOP(MUL,
+              CONST 9,
+              MEM(
+               BINOP(PLUS,
+                NAME %ebp,
+                CONST 12))),
+             MEM(
+              BINOP(PLUS,
+               NAME %ebp,
+               CONST 12))),
+            MEM(
+             BINOP(PLUS,
+              NAME %ebp,
+              CONST 12))))),
+         CONST 0))),
+      EXPS(
+       ESEQ(
+        SEQ(
+         		;; term2 = 8 * x * x ,
+         MOVE(
+          MEM(
+           BINOP(PLUS,
+            NAME %ebp,
+            CONST -8)),
+          BINOP(MUL,
+           BINOP(MUL,
+            CONST 8,
+            MEM(
+             BINOP(PLUS,
+              NAME %ebp,
+              CONST 12))),
+           MEM(
+            BINOP(PLUS,
+             NAME %ebp,
+             CONST 12))))),
+        CONST 0))),
+     EXPS(
+      ESEQ(
+       SEQ(
+        		;; term3 = 7 * x ,
+        MOVE(
+         MEM(
+          BINOP(PLUS,
+           NAME %ebp,
+           CONST -12)),
+         BINOP(MUL,
+          CONST 7,
+          MEM(
+           BINOP(PLUS,
+            NAME %ebp,
+            CONST 12))))),
+       CONST 0))),
+    EXPS(
+     ESEQ(
+      SEQ(
+       		;; term4 = 6 ,
+       MOVE(
+        MEM(
+         BINOP(PLUS,
+          NAME %ebp,
+          CONST -16)),
+        CONST 6)),
+      CONST 0))),
+   EXPS(
+    ESEQ(
+     SEQ(
+      		;; total = term1 + term2 + term3 + term4 ,
+      MOVE(
+       MEM(
+        BINOP(PLUS,
+         NAME %ebp,
+         CONST -20)),
+       BINOP(PLUS,
+        BINOP(PLUS,
+         BINOP(PLUS,
+          MEM(
+           BINOP(PLUS,
+            NAME %ebp,
+            CONST -4)),
+          MEM(
+           BINOP(PLUS,
+            NAME %ebp,
+            CONST -8))),
+         MEM(
+          BINOP(PLUS,
+           NAME %ebp,
+           CONST -12))),
+        MEM(
+         BINOP(PLUS,
+          NAME %ebp,
+          CONST -16))))),
+     CONST 0))),
+  SEQ(
+   MOVE(
+    NAME %eax,
+    MEM(
+     BINOP(PLUS,
+      NAME %ebp,
+      CONST -20))),
+   	leave ;; what's this do?
+	ret
+L1:
+	size	value,.L1-value
+)))
+
+
+SEQ(
+ 	.text
+	.align 2
+.globl main
+	.type	main,@function
+main:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl [#LOCALS], %esp
+,
+ SEQ(
+  EXPS(
+   ESEQ(
+    		;;print new Polynomial ( ) . value ( 11 ) ,
+    CALL(
+     NAME printInt,
+      CALL(
+       NAME Polynomial$value,
+        ESEQ(
+         SEQ(
+          		;;new Polynomial(),
+          SEQ(
+           MOVE(
+            TEMP t0,
+            CONST 4),
+           MOVE(
+            TEMP t1,
+            CALL(
+             NAME malloc,
+              TEMP t0)))),
+         TEMP t1),
+        CONST 11)))),
+  SEQ(
+   MOVE(
+    NAME %eax,
+    CONST 0),
+   	leave ;; what's this do?
+	ret
+L0:
+	size	main,.L0-main
+)))
+
+
+-----------

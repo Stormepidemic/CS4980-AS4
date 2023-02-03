@@ -1,0 +1,202 @@
+
+----------------------------------------
+Symbols:
+
+class Fac
+{
+int ComputeFac(int num /*offset 0*/;)
+[params and locals:
+int num /*offset 0*/;
+int num_aux /*offset 0*/;
+]
+int times /*offset 0*/;
+}
+class Factorial
+{
+static void main()
+[params and locals:
+]
+}
+
+----------------------------------------
+-----------
+SEQ(
+ 	.text
+	.align 2
+.globl ComputeFac
+	.type	ComputeFac,@function
+ComputeFac:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl [#LOCALS], %esp
+,
+ SEQ(
+  SEQ(
+   SEQ(
+    SEQ(
+     EXPS(
+      CONST 0),
+     EXPS(
+      CONST 0)),
+    EXPS(
+     ESEQ(
+      SEQ(
+       		;; times = times + 1 ,
+       MOVE(
+        MEM(
+         BINOP(PLUS,
+          MEM(
+           BINOP(PLUS,
+            NAME %ebp,
+            CONST 8)),
+          CONST 0)),
+        BINOP(PLUS,
+         MEM(
+          BINOP(PLUS,
+           MEM(
+            BINOP(PLUS,
+             NAME %ebp,
+             CONST 8)),
+           CONST 0)),
+         CONST 1))),
+      CONST 0))),
+   EXPS(
+    ESEQ(
+     SEQ(
+      		;;if2 num < 1 ,
+      SEQ(
+       CJUMP(NE,
+        CONST 0,
+        ESEQ(
+         SEQ(
+          MOVE(
+           TEMP t2,
+           CONST 0),
+          SEQ(
+           CJUMP(LT,
+            MEM(
+             BINOP(PLUS,
+              NAME %ebp,
+              CONST 12)),
+            CONST 1,
+            L1,L2),
+           SEQ(
+            LABEL L1,
+            SEQ(
+             MOVE(
+              TEMP t2,
+              CONST 1),
+             LABEL L2)))),
+         TEMP t2),
+        L3,L4),
+       SEQ(
+        LABEL L3,
+        SEQ(
+         EXPS(
+          ESEQ(
+           SEQ(
+            		;; num_aux = 1 ,
+            MOVE(
+             MEM(
+              BINOP(PLUS,
+               NAME %ebp,
+               CONST -4)),
+             CONST 1)),
+           CONST 0)),
+         SEQ(
+          JUMP(
+           NAME L5),
+          SEQ(
+           		;;else,
+           SEQ(
+            LABEL L4,
+            SEQ(
+             EXPS(
+              ESEQ(
+               SEQ(
+                		;; num_aux = num * ( this . ComputeFac ( num - 1 ) ) ,
+                MOVE(
+                 MEM(
+                  BINOP(PLUS,
+                   NAME %ebp,
+                   CONST -4)),
+                 BINOP(MUL,
+                  MEM(
+                   BINOP(PLUS,
+                    NAME %ebp,
+                    CONST 12)),
+                  CALL(
+                   NAME Fac$ComputeFac,
+                    MEM(
+                     BINOP(PLUS,
+                      NAME %ebp,
+                      CONST 8)),
+                    BINOP(MINUS,
+                     MEM(
+                      BINOP(PLUS,
+                       NAME %ebp,
+                       CONST 12)),
+                     CONST 1))))),
+               CONST 0)),
+             SEQ(
+              		;;end if,
+              LABEL L5))))))))),
+     CONST 0))),
+  SEQ(
+   MOVE(
+    NAME %eax,
+    MEM(
+     BINOP(PLUS,
+      NAME %ebp,
+      CONST -4))),
+   	leave ;; what's this do?
+	ret
+L6:
+	size	ComputeFac,.L6-ComputeFac
+)))
+
+
+SEQ(
+ 	.text
+	.align 2
+.globl main
+	.type	main,@function
+main:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl [#LOCALS], %esp
+,
+ SEQ(
+  EXPS(
+   ESEQ(
+    		;;print new Fac ( ) . ComputeFac ( 10 ) ,
+    CALL(
+     NAME printInt,
+      CALL(
+       NAME Fac$ComputeFac,
+        ESEQ(
+         SEQ(
+          		;;new Fac(),
+          SEQ(
+           MOVE(
+            TEMP t0,
+            CONST 4),
+           MOVE(
+            TEMP t1,
+            CALL(
+             NAME malloc,
+              TEMP t0)))),
+         TEMP t1),
+        CONST 10)))),
+  SEQ(
+   MOVE(
+    NAME %eax,
+    CONST 0),
+   	leave ;; what's this do?
+	ret
+L0:
+	size	main,.L0-main
+)))
+
+
+-----------

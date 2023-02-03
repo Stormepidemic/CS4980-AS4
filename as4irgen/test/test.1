@@ -1,0 +1,26 @@
+// simp: computes polynomial 9x^3 + 8x^2 + 7x + 6 at 11
+class simp
+{
+   public static void main(String[] a)
+   {
+      System.out.println(new Polynomial().value(11));
+   }
+}
+
+class Polynomial
+{
+   public int value(int x)
+   {
+      int term1;
+      int term2;
+      int term3;
+      int term4;
+      int total;
+      term1 = 9 * x * x * x;
+      term2 = 8 * x * x;
+      term3 = 7 * x;
+      term4 = 6;
+      total = term1 + term2 + term3 + term4;
+      return total;
+   }
+}
