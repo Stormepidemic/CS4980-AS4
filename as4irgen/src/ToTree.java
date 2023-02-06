@@ -220,7 +220,14 @@ public class ToTree extends ScopeAdapter {
   @Override
   public void caseAIfStatement(AIfStatement node) {
     // TODO: write; similar to caseAIfoneStatement but add false part; use processIf
-
+    ToTree test_visitor = new ToTree(curFile, frame, curclass, curscope);
+    node.getExp().apply(test_visitor);
+    ToTree true_part_visitor = new ToTree(curFile, frame, curclass, curscope); //True part tree
+    node.getTruepart().apply(true_part_visitor);
+    ToTree false_part_visitor = new ToTree(curFile, frame, curclass, curscope); //False part tree
+    node.getFalsepart().apply(true_part_visitor);
+    processIf(test_visitor.getResult(), true_part_visitor.getResult(), false_part_visitor.getResult(),
+            node.getExp().toString()); //Send the TruePart tree & FalsePart tree to ProcessIf
   }
 
   // utility to handle while from multiple places; test_text used for documentation
@@ -250,7 +257,13 @@ public class ToTree extends ScopeAdapter {
     node.getExp().apply(this);
     // can assume sym not null, is a variable, and types match
     // TODO: set result to the ESEQ to assign the value
-
+    result = new ESEQ(new SEQ(
+            new Code(node.getExp().toString()),
+            new MOVE(
+                    frame.access(sym),
+                    new CONST(1)
+            )
+    ), new CONST(0));
   }
 
   @Override
@@ -271,6 +284,10 @@ public class ToTree extends ScopeAdapter {
   @Override
   public void caseAAndAndExp(AAndAndExp node) {
     // TODO: write - see addition and subtraction below
+    node.getLeft().apply(this);
+    ToTree rt = new ToTree(curFile, frame, curclass, curscope);
+    node.getRight().apply(rt);
+    result = new BINOP(BINOP.AND, result, rt.getResult());
   }
 
   @Override
@@ -337,6 +354,7 @@ public class ToTree extends ScopeAdapter {
       System.err.println("Illegal number in code: " + nums);
     }
     // TODO: write code to set result to a constant capturing the value
+    result = new CONST(val);
   }
 
   @Override
