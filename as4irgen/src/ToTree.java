@@ -225,12 +225,7 @@ public class ToTree extends ScopeAdapter {
 
   // utility to handle while from multiple places; test_text used for documentation
   protected void processWhile(Exp test, Exp body, String test_text) {
-    // labels to use - you can add more, but these are generally sufficient
-    //    and having a common creation order minimizes differences in esubmit
-    Label test_label = new Label();
-    Label body_label = new Label();
-    Label done_label = new Label();
-    // TODO: write the rest
+    // TODO: write
 
   }
 
@@ -287,13 +282,8 @@ public class ToTree extends ScopeAdapter {
 
   @Override
   public void caseACompareComparison(ACompareComparison node) {
-    // labels to use - you can add more, but these are generally sufficient
-    //    and having a common creation order minimizes differences in esubmit
-    Label true_result = new Label();
-    Label false_result = new Label();
     // TODO: write; see notes and textbook for the need to return 0 if comparison
     //       is false, 1 if true
-    // NOTE: comparison always uses <
   }
 
   @Override
@@ -324,12 +314,6 @@ public class ToTree extends ScopeAdapter {
   @Override
   public void caseAArrayFactor(AArrayFactor node) {
     // TODO: write; see book for hints
-    // NOTE: Java requires checking lengths when indexing arrays
-    //       This lengthis stored in the word before the array (see below)
-    //       If you were to add such a check, you could assume there's a
-    //       function array_access_error to report failures. *However*,
-    //       adding the check is *not* required (and the solution does not).
-
   }
 
   @Override
@@ -409,7 +393,7 @@ public class ToTree extends ScopeAdapter {
         new CJUMP(CJUMP.LE, new TEMP(len), new CONST(0),
           init_bot, init_cont),
         new LABEL(init_cont),
-        new MOVE(new MEM(new BINOP(BINOP.PLUS,
+        new MOVE(new MEM(new BINOP(BINOP.MUL,
           new TEMP(addr),
           new BINOP(BINOP.MUL,
             new TEMP(len),
