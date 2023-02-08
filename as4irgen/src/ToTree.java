@@ -225,7 +225,7 @@ public class ToTree extends ScopeAdapter {
     ToTree true_part_visitor = new ToTree(curFile, frame, curclass, curscope); //True part tree
     node.getTruepart().apply(true_part_visitor);
     ToTree false_part_visitor = new ToTree(curFile, frame, curclass, curscope); //False part tree
-    node.getFalsepart().apply(true_part_visitor);
+    node.getFalsepart().apply(false_part_visitor);
     processIf(test_visitor.getResult(), true_part_visitor.getResult(), false_part_visitor.getResult(),
             node.getExp().toString()); //Send the TruePart tree & FalsePart tree to ProcessIf
   }
@@ -239,6 +239,7 @@ public class ToTree extends ScopeAdapter {
   @Override
   public void caseAWhileStatement(AWhileStatement node) {
     // TODO: write; will call processWhile to generate the code
+
   }
 
   @Override
@@ -269,16 +270,19 @@ public class ToTree extends ScopeAdapter {
   @Override
   public void caseAArraySimpleStmt(AArraySimpleStmt node) {
     // TODO: write. You do not need to add bounds checks
+
   }
 
   @Override
   public void caseAWhileStmtAllPaired(AWhileStmtAllPaired node) {
     // TODO: write; will call processWhile to generate the code
+
   }
 
   @Override
   public void caseAIfStmtAllPaired(AIfStmtAllPaired node) {
     // TODO: write
+
   }
 
   @Override
@@ -437,6 +441,8 @@ public class ToTree extends ScopeAdapter {
     //       one word), and set result to an ESEQ that allocates the space and then
     //       returns the address as the result of the expression. Also sets
     //       lastClassType to the class being processed in the new expression.
+    lastClassType = ClassType.instance(curclass.getName()); //Get the last class type
+
   }
 
   @Override
