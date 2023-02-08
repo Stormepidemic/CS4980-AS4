@@ -371,6 +371,14 @@ public class ToTree extends ScopeAdapter {
   public void caseAIdFactor(AIdFactor node) {
     String id = node.getId().getText();
     // TODO: write; will call frame.access to get the code to reference the data
+    result = new ESEQ(new SEQ(
+            new Code(node.getId().getText()),
+            new MOVE(
+                    frame.access(curscope.lookup(id)), //This is probably something important to figure out...
+                    new CONST(1)
+                    )
+              ),
+              new CONST(0));
   }
 
   @Override
