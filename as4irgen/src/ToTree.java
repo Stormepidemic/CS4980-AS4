@@ -441,8 +441,24 @@ public class ToTree extends ScopeAdapter {
     //       one word), and set result to an ESEQ that allocates the space and then
     //       returns the address as the result of the expression. Also sets
     //       lastClassType to the class being processed in the new expression.
+    Temp t0 = new Temp();
+    Temp t1 = new Temp();
+    result = new ESEQ(
+             new SEQ(
+                     new Code("\t\t;;new " + node.getId().getText() + "()"),
+                     new SEQ(
+                             new MOVE(
+                                     new TEMP(t0),
+                                     new CONST(WORD_SIZE)
+                             ),
+                             new MOVE(
+                                     new TEMP(t1),
+                                     frame.externalCall("malloc",
+                                             new ExpList(new TEMP(t0), null))
+                             )
+                             )
+                     ), new TEMP(t1));
     lastClassType = ClassType.instance(curclass.getName()); //Get the last class type
-
   }
 
   @Override
