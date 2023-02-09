@@ -220,6 +220,7 @@ public class ToTree extends ScopeAdapter {
   @Override
   public void caseAIfStatement(AIfStatement node) {
     // TODO: write; similar to caseAIfoneStatement but add false part; use processIf
+
     ToTree test_visitor = new ToTree(curFile, frame, curclass, curscope);
     node.getExp().apply(test_visitor);
     ToTree true_part_visitor = new ToTree(curFile, frame, curclass, curscope); //True part tree
@@ -228,6 +229,7 @@ public class ToTree extends ScopeAdapter {
     node.getFalsepart().apply(false_part_visitor);
     processIf(test_visitor.getResult(), true_part_visitor.getResult(), false_part_visitor.getResult(),
             node.getExp().toString()); //Send the TruePart tree & FalsePart tree to ProcessIf
+
   }
 
   // utility to handle while from multiple places; test_text used for documentation
@@ -258,12 +260,14 @@ public class ToTree extends ScopeAdapter {
     node.getExp().apply(this);
     // can assume sym not null, is a variable, and types match
     // TODO: set result to the ESEQ to assign the value
-    result = new ESEQ(new SEQ(
-            new Code(node.getExp().toString()),
-            new MOVE(
+    System.out.println(id + " HERE " + node.getExp());
+    result = new ESEQ(
+            new SEQ(
+              new Code(";; " + node.getId().getText() + " " + node.getEqual() + " " + node.getExp()),
+              new MOVE(
                     frame.access(sym),
                     new CONST(1)
-            )
+              )
     ), new CONST(0));
   }
 
@@ -305,6 +309,29 @@ public class ToTree extends ScopeAdapter {
   public void caseACompareComparison(ACompareComparison node) {
     // TODO: write; see notes and textbook for the need to return 0 if comparison
     //       is false, 1 if true
+    ToTree test_visitor = new ToTree(curFile, frame, curclass, curscope);
+    node.getLeft().apply(test_visitor);
+    Temp t2 = new Temp();
+    Label L1 = new Label();
+    Label L2 = new Label();
+    result = new ESEQ(
+            new SEQ(
+                    new MOVE(
+                            new TEMP(t2),
+                            new CONST(0)
+                    ),
+                    new SEQ(
+                            new CJUMP(CJUMP.LT, test_visitor.getResult(), new CONST(1),
+                                    L1, L2),
+                            new SEQ(
+                                    new LABEL(L1),
+                                    new SEQ(
+                                            new MOVE(new TEMP(t2), new CONST(1)),
+                                            new LABEL(L2))
+                                    )
+                            )
+                    ), new TEMP(t2)
+              );
   }
 
   @Override
@@ -375,14 +402,7 @@ public class ToTree extends ScopeAdapter {
   public void caseAIdFactor(AIdFactor node) {
     String id = node.getId().getText();
     // TODO: write; will call frame.access to get the code to reference the data
-    result = new ESEQ(new SEQ(
-            new Code(node.getId().getText()),
-            new MOVE(
-                    frame.access(curscope.lookup(id)), //This is probably something important to figure out...
-                    new CONST(1)
-                    )
-              ),
-              new CONST(0));
+    result = frame.access(curscope.lookup(id));
   }
 
   @Override
