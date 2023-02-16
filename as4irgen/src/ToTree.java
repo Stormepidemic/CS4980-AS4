@@ -2,6 +2,7 @@
 // ToTree.java: convert MiniJava programs to IR Tree
 //      Based on material in Ch. 7 of the textbook.
 //      Assumes type checking already done.
+// Authors : Joshua Rist & Riley Sullivan
 //
 
 import Temp.Label;
@@ -219,7 +220,6 @@ public class ToTree extends ScopeAdapter {
 
     @Override
     public void caseAIfStatement(AIfStatement node) {
-        // TODO: write; similar to caseAIfoneStatement but add false part; use processIf
         ToTree test_visitor = new ToTree(curFile, frame, curclass, curscope);
         node.getExp().apply(test_visitor);
         ToTree true_part_visitor = new ToTree(curFile, frame, curclass, curscope); //True part tree
@@ -233,14 +233,13 @@ public class ToTree extends ScopeAdapter {
 
     // utility to handle while from multiple places; test_text used for documentation
     protected void processWhile(Exp test, Exp body, String test_text) {
-        // TODO: write
         Label startPoint = new Label();
         Label L9 = new Label();
         Label exitPoint = new Label();
         Temp t2 = new Temp();
         result = new ESEQ(
                 new SEQ(
-                        new Code(";;while " + test_text),
+                        new Code("\t\t;;while " + test_text),
                         new SEQ(
                                 new LABEL(startPoint),
                                 new SEQ(
@@ -252,7 +251,7 @@ public class ToTree extends ScopeAdapter {
                                                         new SEQ(
                                                                 new JUMP(startPoint),
                                                                 new SEQ(
-                                                                        new Code(";;end while"),
+                                                                        new Code("\t\t;;end while"),
                                                                         new LABEL(exitPoint)
                                                                 )
                                                         )
@@ -266,12 +265,11 @@ public class ToTree extends ScopeAdapter {
 
     @Override
     public void caseAWhileStatement(AWhileStatement node) {
-        // TODO: write; will call processWhile to generate the code
         ToTree test_visitor = new ToTree(curFile, frame, curclass, curscope);
         node.getExp().apply(test_visitor);
         ToTree whileBodyVisitor = new ToTree(curFile, frame, curclass, curscope);
         node.getStatement().apply(whileBodyVisitor);
-        System.out.println("WHILE: " + node.getExp());
+
         processWhile(test_visitor.getResult(), whileBodyVisitor.getResult(), node.getExp().toString());
 
     }
@@ -291,40 +289,18 @@ public class ToTree extends ScopeAdapter {
         Symbol sym = curscope.lookup(id);
         node.getExp().apply(this);
         // can assume sym not null, is a variable, and types match
-        // TODO: set result to the ESEQ to assign the value
-        System.out.println(id + " HERE " + node.getExp());
-        result = new ESEQ(
+        result = new ESEQ( //set result to the ESEQ to assign the value
                 new SEQ(
-                        new Code(";; " + node.getId().getText() + " " + node.getEqual() + " " + node.getExp()),
+                        new Code("\t\t;; " + node.getId().getText() + " " + node.getEqual() + "" + node.getExp()),
                         new MOVE(
                                 frame.access(sym),
-                                new CONST(1)
+                                this.getResult()
                         )
                 ), new CONST(0));
     }
 
     @Override
-    public void caseAArraySimpleStmt(AArraySimpleStmt node) {
-        // TODO: write. You do not need to add bounds checks
-
-    }
-
-    @Override
-    public void caseAWhileStmtAllPaired(AWhileStmtAllPaired node) {
-        // TODO: write; will call processWhile to generate the code
-        
-
-    }
-
-    @Override
-    public void caseAIfStmtAllPaired(AIfStmtAllPaired node) {
-        // TODO: write
-
-    }
-
-    @Override
     public void caseAAndAndExp(AAndAndExp node) {
-        // TODO: write - see addition and subtraction below
         node.getLeft().apply(this);
         ToTree rt = new ToTree(curFile, frame, curclass, curscope);
         node.getRight().apply(rt);
@@ -340,8 +316,6 @@ public class ToTree extends ScopeAdapter {
 
     @Override
     public void caseACompareComparison(ACompareComparison node) {
-        // TODO: write; see notes and textbook for the need to return 0 if comparison
-        //       is false, 1 if true
         ToTree test_visitor = new ToTree(curFile, frame, curclass, curscope);
         node.getLeft().apply(test_visitor);
         ToTree right_visitor = new ToTree(curFile, frame, curclass, curscope);
@@ -396,7 +370,17 @@ public class ToTree extends ScopeAdapter {
 
     @Override
     public void caseAArrayFactor(AArrayFactor node) {
-        // TODO: write; see book for hints
+        ToTree test_visitor = new ToTree(curFile, frame, curclass, curscope);
+        node.getFactor().apply(test_visitor);
+        node.getIndex().apply(test_visitor);
+        //Getting the factor's string name results in an extra space after the actual name. This piece of code removes it.
+        String factorName = node.getFactor().toString().substring(0, node.getFactor().toString().length()-1);
+        Symbol factor = curscope.lookup(factorName);
+
+        result = new MEM(
+                    new BINOP(BINOP.PLUS, frame.access(factor),
+                            new BINOP(BINOP.MUL, test_visitor.getResult(), new CONST(4))));
+
     }
 
     @Override
@@ -419,8 +403,7 @@ public class ToTree extends ScopeAdapter {
         } catch (NumberFormatException e) {
             System.err.println("Illegal number in code: " + nums);
         }
-        // TODO: write code to set result to a constant capturing the value
-        result = new CONST(val);
+        result = new CONST(val); //set result to a constant capturing the value
     }
 
     @Override
@@ -436,8 +419,7 @@ public class ToTree extends ScopeAdapter {
     @Override
     public void caseAIdFactor(AIdFactor node) {
         String id = node.getId().getText();
-        // TODO: write; will call frame.access to get the code to reference the data
-        result = frame.access(curscope.lookup(id));
+        result = frame.access(curscope.lookup(id)); //frame.access to get the code to reference the data
     }
 
     @Override
@@ -490,12 +472,12 @@ public class ToTree extends ScopeAdapter {
                         new TEMP(addr));
     }
 
+    // Determines number of words to malloc (with a minimum of
+    // one word), and set result to an ESEQ that allocates the space and then
+    // returns the address as the result of the expression. Also sets
+    // lastClassType to the class being processed in the new expression.
     @Override
     public void caseANewobjFactor(ANewobjFactor node) {
-        // TODO: write - will determine number of words to malloc (with a minimum of
-        //       one word), and set result to an ESEQ that allocates the space and then
-        //       returns the address as the result of the expression. Also sets
-        //       lastClassType to the class being processed in the new expression.
         Temp t0 = new Temp();
         Temp t1 = new Temp();
         result = new ESEQ(
@@ -513,7 +495,7 @@ public class ToTree extends ScopeAdapter {
                                 )
                         )
                 ), new TEMP(t1));
-        lastClassType = ClassType.instance(curclass.getName()); //Get the last class type
+        lastClassType = ClassType.instance(curclass.getName()); //Set the last class type
     }
 
     @Override
