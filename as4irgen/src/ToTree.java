@@ -305,6 +305,7 @@ public class ToTree extends ScopeAdapter {
         ToTree rt = new ToTree(curFile, frame, curclass, curscope);
         node.getRight().apply(rt);
         result = new BINOP(BINOP.AND, result, rt.getResult());
+        // This method is apparently not tested, not required
     }
 
     @Override
