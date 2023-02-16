@@ -379,8 +379,8 @@ public class ToTree extends ScopeAdapter {
         Symbol factor = curscope.lookup(factorName);
 
         result = new MEM(
-                    new BINOP(BINOP.PLUS, frame.access(factor),
-                            new BINOP(BINOP.MUL, test_visitor.getResult(), new CONST(4))));
+                new BINOP(BINOP.PLUS, frame.access(factor),
+                        new BINOP(BINOP.MUL, test_visitor.getResult(), new CONST(4))));
 
     }
 
